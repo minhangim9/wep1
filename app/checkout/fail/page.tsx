@@ -1,17 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { XCircle, RefreshCw, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { XCircle, RefreshCw, ShoppingBag, Loader2 } from 'lucide-react';
 
-export default function CheckoutFailPage() {
+function CheckoutFailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const code = searchParams.get('code') || 'PAYMENT_FAILED';
   const message = searchParams.get('message') || '고객님께서 결제를 취소하셨거나 카드사 오류가 발생했습니다.';
-  const orderId = searchParams.get('orderId');
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4">
@@ -56,5 +55,19 @@ export default function CheckoutFailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutFailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center p-4">
+          <Loader2 className="w-8 h-8 animate-spin text-rose-600" />
+        </div>
+      }
+    >
+      <CheckoutFailContent />
+    </Suspense>
   );
 }

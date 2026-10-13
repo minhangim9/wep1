@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useShop } from '@/context/ShopContext';
@@ -15,7 +15,7 @@ import {
   Check,
 } from 'lucide-react';
 
-export default function CategoryPage() {
+function CategoryPageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const { products } = useShop();
@@ -252,5 +252,13 @@ export default function CategoryPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CategoryPage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-12 text-center text-xs text-neutral-400">상품 목록을 불러오는 중...</div>}>
+      <CategoryPageContent />
+    </Suspense>
   );
 }

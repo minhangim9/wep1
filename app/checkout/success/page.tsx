@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useShop } from '@/context/ShopContext';
 import confetti from 'canvas-confetti';
 import { Loader2, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshOrders, clearCart, showToast } = useShop();
@@ -149,5 +149,19 @@ export default function CheckoutSuccessPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center p-4">
+          <Loader2 className="w-8 h-8 animate-spin text-rose-600" />
+        </div>
+      }
+    >
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }
