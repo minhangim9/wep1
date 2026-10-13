@@ -3,17 +3,49 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useShop } from '@/context/ShopContext';
-import { ChevronRight, MessageSquare, Plus, MessageCircle } from 'lucide-react';
+import { ChevronRight, MessageSquare, Plus, MessageCircle, Lock } from 'lucide-react';
 
 export default function InquiriesPage() {
-  const { user, boardPosts, addBoardPost, showToast } = useShop();
+  const { user, boardPosts, addBoardPost, showToast, openAuthModal } = useShop();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto py-24 px-4 text-center space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center mx-auto">
+          <Lock className="w-8 h-8 text-neutral-400" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-black text-neutral-900">로그인이 필요한 서비스입니다</h2>
+          <p className="text-xs text-neutral-500 leading-relaxed">
+            1:1 맞춤 문의 작성 및 상담 내역 확인은<br />
+            로그인하신 후 이용하실 수 있습니다.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-2.5 pt-2">
+          <button
+            type="button"
+            onClick={() => openAuthModal('login')}
+            className="bg-neutral-900 text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors shadow-md cursor-pointer"
+          >
+            로그인하기
+          </button>
+          <Link
+            href="/"
+            className="bg-neutral-100 text-neutral-700 text-xs font-bold px-5 py-3 rounded-xl hover:bg-neutral-200 transition-colors"
+          >
+            홈으로 이동
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const myInquiries = boardPosts.filter(
-    (p) => p.userId === user?.id || p.type === 'qna'
+    (p) => p.userId === user.id || p.type === 'qna'
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -98,7 +130,7 @@ export default function InquiriesPage() {
               {inq.answer && (
                 <div className="mt-3 bg-neutral-50 p-4 rounded-xl border border-neutral-200 space-y-1">
                   <p className="font-bold text-rose-600 text-xs">
-                    ↳ 다써바 전문 상담원 답변 ({inq.answeredAt})
+                    ↳ 피우다 전문 상담원 답변 ({inq.answeredAt})
                   </p>
                   <p className="text-neutral-800 leading-relaxed">{inq.answer}</p>
                 </div>

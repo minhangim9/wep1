@@ -439,7 +439,7 @@ export default function ProductDetailPage() {
                 <span className="text-neutral-500">추천 피부타입</span>
                 <span className="font-medium text-neutral-800">{product.skinTypeRecommendation.join(', ')}</span>
                 <span className="text-neutral-500">제조국 / 책임판매업자</span>
-                <span className="font-medium text-neutral-800">대한민국 / (주)다써바코스메틱</span>
+                <span className="font-medium text-neutral-800">대한민국 / (주)아빠사랑 피우다 코스메틱</span>
               </div>
             </div>
           </div>
@@ -454,7 +454,7 @@ export default function ProductDetailPage() {
                 EWG 그린 등급 & 비건 인증 포뮬러
               </h3>
               <p className="text-xs text-emerald-800 leading-relaxed">
-                다써바는 20가지 주의 성분(인공향료, 파라벤, 페녹시에탄올 등)을 엄격히 배제하며, 동물 실험을 하지 않는 100% 클린 비건 뷰티를 지향합니다.
+                피우다(Piuda)는 20가지 주의 성분(인공향료, 파라벤, 페녹시에탄올 등)을 엄격히 배제하며, 동물 실험을 하지 않는 100% 클린 비건 뷰티를 지향합니다.
               </p>
             </div>
 
@@ -599,7 +599,7 @@ export default function ProductDetailPage() {
                     {q.answer && (
                       <div className="mt-3 bg-neutral-50 p-3.5 rounded-xl border border-neutral-200/80 space-y-1">
                         <p className="font-bold text-rose-600 text-[11px] flex items-center gap-1">
-                          ↳ 다써바 CS팀 답변 ({q.answeredAt?.slice(0, 10)})
+                          ↳ 피우다(Piuda) CS팀 답변 ({q.answeredAt?.slice(0, 10)})
                         </p>
                         <p className="text-neutral-700 leading-relaxed text-xs">{q.answer}</p>
                       </div>

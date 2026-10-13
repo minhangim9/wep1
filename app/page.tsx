@@ -8,6 +8,7 @@ import {
   Sparkles,
   Flame,
   Clock,
+  ChevronLeft,
   ChevronRight,
   ShieldCheck,
   Truck,
@@ -23,39 +24,30 @@ import {
 const HERO_SLIDES = [
   {
     id: 1,
-    title: '민감 피부를 위한 구원투수\n센텔라 시카 앰플 1+1 기획전',
-    subtitle: '피부 자극 99.8% 진정 임상 완료! 한정 수량 본품 더블 증정',
-    badge: '1+1 LIMITED TIME',
-    bgColor: 'from-rose-900 via-rose-800 to-neutral-900',
-    imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1200&q=80',
+    badge: 'PIUDA DUAL FREEZE SERUM',
+    title: '천연성분으로\n당신의 본연을 깨우세요',
+    subtitle: '피우다(Piuda) 듀얼 프리즈 세럼 — 연꽃 PDRN 5% & 마이크로 시카 펩타이드로 완성하는 맑고 투명한 피부 본연의 빛',
+    imageUrl: '/hero_1.jpg',
     link: '/product/prod-001',
-    buttonText: '1+1 특가로 구매하기',
+    buttonText: '듀얼 프리즈 세럼 만나보기',
+    badgeBg: 'bg-amber-500/90 text-white',
   },
   {
     id: 2,
-    title: '백탁 없이 생기 충전\n에어핏 비건 톤업 선크림',
-    subtitle: '파데 프리 찰떡 밀착! 눈시림 제로 유무기 혼합자차',
-    badge: 'NEW RELEASE',
-    bgColor: 'from-amber-900 via-rose-900 to-neutral-900',
-    imageUrl: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1200&q=80',
-    link: '/product/prod-003',
-    buttonText: '신제품 만나보기',
-  },
-  {
-    id: 3,
-    title: '다써바 멤버십 웰컴 혜택\n신규가입 즉시 3,000P 지급',
-    subtitle: '첫 구매 무료배송 쿠폰 & 전품목 15% 할인 쿠폰팩 증정',
-    badge: 'MEMBER BENEFIT',
-    bgColor: 'from-pink-900 via-purple-900 to-neutral-900',
-    imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80',
-    link: '/register',
-    buttonText: '3초 회원가입 혜택받기',
+    badge: '1+1 LAUNCHING SPECIAL',
+    title: '천연성분으로\n당신의 본연을 깨우세요',
+    subtitle: '물 위에 피어난 백련의 순수한 생명력 그대로 — 저자극 비건 안심 포뮬러 1+1 런칭 특별 기획전',
+    imageUrl: '/hero_2.jpg',
+    link: '/category/one-plus-one',
+    buttonText: '1+1 런칭 특가 구매하기',
+    badgeBg: 'bg-rose-500/90 text-white',
   },
 ];
 
 export default function HomePage() {
   const { products, reviews, user } = useShop();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const [activeBestTab, setActiveBestTab] = useState<'all' | 'skincare' | 'suncare' | 'makeup'>('all');
   const [selectedConcern, setSelectedConcern] = useState<'all' | '진정' | '보습' | '미백' | '남성'>('all');
 
@@ -74,13 +66,22 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  // 롤링 슬라이드 자동 전환
+  // 우측에서 좌측으로 지나가는 캐러셀 자동 전환 (마우스 호버 시 일시정지)
   useEffect(() => {
+    if (isHovered) return;
     const slideTimer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
     }, 5000);
     return () => clearInterval(slideTimer);
-  }, []);
+  }, [isHovered]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1));
+  };
 
   // 1+1 기획 상품들
   const onePlusOneProducts = products.filter((p) => p.isOnePlusOne);
@@ -106,64 +107,109 @@ export default function HomePage() {
 
   return (
     <div className="space-y-16 pb-16">
-      {/* 1. 메인 히어로 슬라이드 배너 */}
-      <section className="relative overflow-hidden bg-neutral-900 text-white min-h-[460px] md:min-h-[520px] flex items-center">
-        {HERO_SLIDES.map((slide, idx) => (
-          <div
-            key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-700 flex items-center ${
-              idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-            }`}
-          >
-            {/* 배경 이미지 & 그라데이션 */}
-            <div className="absolute inset-0">
-              <img
-                src={slide.imageUrl}
-                alt={slide.title}
-                className="w-full h-full object-cover opacity-40 scale-105 transition-transform duration-10000"
-              />
-              <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgColor} opacity-85`} />
-            </div>
+      {/* 1. 메인 히어로 슬라이드 배너 (부드러운 페이드 크로스 전환 캐러셀) */}
+      <section
+        className="relative overflow-hidden bg-neutral-950 text-white min-h-[480px] sm:min-h-[540px] md:min-h-[600px] flex items-center group select-none"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {HERO_SLIDES.map((slide, idx) => {
+          const isActive = idx === currentSlide;
 
-            {/* 슬라이드 텍스트 컨텐츠 */}
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 w-full py-12">
-              <div className="max-w-2xl space-y-4">
-                <span className="inline-flex items-center gap-1.5 bg-rose-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  {slide.badge}
-                </span>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight tracking-tight whitespace-pre-line drop-shadow-md">
-                  {slide.title}
-                </h1>
-                <p className="text-sm sm:text-base text-neutral-200 leading-relaxed drop-shadow-xs">
-                  {slide.subtitle}
-                </p>
-                <div className="pt-2">
-                  <Link
-                    href={slide.link}
-                    className="inline-flex items-center gap-2 bg-white text-neutral-900 font-bold px-6 py-3 rounded-full hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-lg text-sm sm:text-base group"
+          return (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 flex items-center transition-opacity duration-1000 ease-in-out ${
+                isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+              }`}
+            >
+              {/* 배경 이미지 & 프리미엄 다크 그라데이션 오버레이 */}
+              <div className="absolute inset-0 overflow-hidden">
+                <img
+                  src={slide.imageUrl}
+                  alt={slide.title}
+                  className={`w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
+                    isActive ? 'scale-105' : 'scale-100'
+                  }`}
+                />
+                {/* 텍스트 가독성을 위한 그라데이션 */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent sm:max-w-[70%]" />
+                <div className="absolute inset-0 bg-black/15" />
+              </div>
+
+              {/* 슬라이드 텍스트 컨텐츠 */}
+              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16">
+                <div
+                  className={`max-w-2xl space-y-4 sm:space-y-5 transition-all duration-700 delay-150 ${
+                    isActive
+                      ? 'translate-y-0 opacity-100'
+                      : 'translate-y-4 opacity-0'
+                  }`}
+                >
+                  <span
+                    className={`inline-flex items-center gap-1.5 ${slide.badgeBg} text-xs font-black px-3.5 py-1.5 rounded-full shadow-lg backdrop-blur-md`}
                   >
-                    <span>{slide.buttonText}</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {slide.badge}
+                  </span>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight whitespace-pre-line drop-shadow-xl text-white">
+                    {slide.title}
+                  </h1>
+                  <p className="text-xs sm:text-sm md:text-base text-neutral-200 leading-relaxed drop-shadow-md font-medium whitespace-pre-line max-w-xl">
+                    {slide.subtitle}
+                  </p>
+                  <div className="pt-3 flex flex-wrap items-center gap-3">
+                    <Link
+                      href={slide.link}
+                      className="inline-flex items-center gap-2 bg-white text-neutral-950 font-black px-7 py-3.5 rounded-full hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-2xl text-xs sm:text-sm md:text-base group/btn"
+                    >
+                      <span>{slide.buttonText}</span>
+                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1.5 transition-transform duration-200" />
+                    </Link>
+                    <Link
+                      href="/category/all"
+                      className="inline-flex items-center gap-2 bg-neutral-900/60 backdrop-blur-md text-white border border-white/30 font-bold px-6 py-3.5 rounded-full hover:bg-white hover:text-neutral-900 transition-all duration-300 text-xs sm:text-sm md:text-base"
+                    >
+                      전체 상품 보기
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
-        {/* 슬라이드 인디케이터 도트 */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        {/* 좌우 화살표 버튼 */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-all opacity-70 hover:opacity-100 hover:scale-110 shadow-lg cursor-pointer"
+          aria-label="이전 슬라이드"
+        >
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 hover:bg-black/80 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-all opacity-70 hover:opacity-100 hover:scale-110 shadow-lg cursor-pointer"
+          aria-label="다음 슬라이드"
+        >
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+
+        {/* 슬라이드 인디케이터 도트 & 번호 */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-lg">
           {HERO_SLIDES.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrentSlide(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                i === currentSlide ? 'w-8 bg-rose-500' : 'w-2 bg-white/40 hover:bg-white/70'
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                i === currentSlide ? 'w-8 bg-rose-500 shadow-md' : 'w-2 bg-white/40 hover:bg-white/70'
               }`}
               aria-label={`슬라이드 ${i + 1}`}
             />
           ))}
+          <span className="text-[11px] font-mono font-bold text-neutral-300 ml-1">
+            0{currentSlide + 1} / 0{HERO_SLIDES.length}
+          </span>
         </div>
       </section>
 
@@ -443,7 +489,7 @@ export default function HomePage() {
                 1:1 맞춤 피부 정밀 진단 &<br />뷰티 클래스 사전 예약
               </h3>
               <p className="text-xs text-neutral-600 mt-2 leading-relaxed">
-                다써바 뷰티랩 전문가가 수분도, 유분도, 모공, 색소침착을 정밀 측정해 최적의 스킨케어 루틴을 제안합니다.
+                피우다(Piuda) 뷰티랩 전문가가 수분도, 유분도, 모공, 색소침착을 정밀 측정해 최적의 스킨케어 루틴을 제안합니다.
               </p>
             </div>
             <div className="pt-6">
@@ -463,7 +509,7 @@ export default function HomePage() {
                 <MessageSquare className="w-3 h-3" /> COMMUNITY
               </span>
               <h3 className="text-xl sm:text-2xl font-black leading-snug">
-                다써바 뷰티 꿀팁 &<br />화장품 공병 솔직 후기
+                피우다 뷰티 꿀팁 &<br />화장품 공병 솔직 후기
               </h3>
               <p className="text-xs text-neutral-300 mt-2 leading-relaxed">
                 실제 회원들의 피부 변화 스토리와 앰플+수분크림 꿀조합을 확인하고 나만의 꿀팁을 공유해보세요!

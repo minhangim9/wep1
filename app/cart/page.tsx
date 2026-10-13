@@ -14,17 +14,52 @@ import {
   ArrowRight,
   Flame,
   ChevronRight,
+  Lock,
 } from 'lucide-react';
 
 export default function CartPage() {
   const router = useRouter();
   const {
+    user,
     cart,
     removeFromCart,
     updateCartQuantity,
     toggleCartSelect,
     toggleAllCartSelect,
+    openAuthModal,
   } = useShop();
+
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto py-24 px-4 text-center space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center mx-auto">
+          <Lock className="w-8 h-8 text-neutral-400" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-black text-neutral-900">로그인이 필요한 서비스입니다</h2>
+          <p className="text-xs text-neutral-500 leading-relaxed">
+            장바구니에 담긴 상품 확인 및 주문/결제는<br />
+            로그인하신 후 이용하실 수 있습니다.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-2.5 pt-2">
+          <button
+            type="button"
+            onClick={() => openAuthModal('login')}
+            className="bg-neutral-900 text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors shadow-md cursor-pointer"
+          >
+            로그인하기
+          </button>
+          <Link
+            href="/"
+            className="bg-neutral-100 text-neutral-700 text-xs font-bold px-5 py-3 rounded-xl hover:bg-neutral-200 transition-colors"
+          >
+            홈으로 이동
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const selectedItems = cart.filter((item) => item.selected);
   const isAllSelected = cart.length > 0 && selectedItems.length === cart.length;
@@ -270,7 +305,7 @@ export default function CartPage() {
           <div>
             <h3 className="text-base font-bold text-neutral-700">장바구니가 비어 있습니다.</h3>
             <p className="text-xs text-neutral-400 mt-1">
-              다써바의 인기 1+1 화장품과 베스트 상품을 둘러보세요!
+              피우다(Piuda)의 인기 1+1 화장품과 베스트 상품을 둘러보세요!
             </p>
           </div>
           <Link

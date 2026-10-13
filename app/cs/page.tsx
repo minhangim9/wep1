@@ -29,7 +29,7 @@ const FAQ_LIST = [
   {
     category: '반품/환불',
     question: '화장품 사용 후 피부에 맞지 않는데 환불이 가능한가요?',
-    answer: '다써바는 100% 피부 불만족 안심 환불 보장제를 운영하고 있습니다. 제품 수령 후 7일 이내에 피부 트러블이나 이상 반응이 있을 경우 고객센터 또는 마이페이지를 통해 환불을 신청해주시면 전액 환불해 드립니다.',
+    answer: '피우다(Piuda)는 100% 피부 불만족 안심 환불 보장제를 운영하고 있습니다. 제품 수령 후 7일 이내에 피부 트러블이나 이상 반응이 있을 경우 고객센터 또는 마이페이지를 통해 환불을 신청해주시면 전액 환불해 드립니다.',
   },
   {
     category: '포인트/쿠폰',
@@ -39,7 +39,7 @@ const FAQ_LIST = [
   {
     category: '성분/안전',
     question: '임산부나 청소년도 사용할 수 있는 순한 성분인가요?',
-    answer: '다써바의 전 제품은 20가지 주의 성분을 배제하고 EWG 그린 등급 원료를 중심으로 설계된 저자극 비건 포뮬러입니다. 민감성 피부 대상 저자극 테스트를 완료하여 안심하고 사용하실 수 있습니다.',
+    answer: '피우다(Piuda)의 전 제품은 20가지 주의 성분을 배제하고 EWG 그린 등급 원료를 중심으로 설계된 저자극 비건 포뮬러입니다. 민감성 피부 대상 저자극 테스트를 완료하여 안심하고 사용하실 수 있습니다.',
   },
 ];
 
@@ -64,7 +64,7 @@ export default function CustomerServicePage() {
       <div className="border-b border-neutral-200 pb-4">
         <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 flex items-center gap-2">
           <Headphones className="w-7 h-7 text-rose-500" />
-          다써바 고객만족센터
+          아빠사랑 피우다 고객만족센터
         </h1>
         <p className="text-xs text-neutral-500 mt-1">
           궁금하신 사항을 가장 빠르고 정확하게 안내해 드립니다.

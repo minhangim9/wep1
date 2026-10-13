@@ -43,7 +43,7 @@ export const ChatbotModal: React.FC = () => {
           </div>
           <div>
             <h3 className="font-bold text-sm flex items-center gap-1.5">
-              다써바 뷰티 AI 어드바이저
+              피우다(Piuda) AI 어드바이저
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             </h3>
             <p className="text-[11px] text-rose-100">24시간 실시간 맞춤 화장품 상담</p>

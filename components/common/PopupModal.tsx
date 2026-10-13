@@ -12,7 +12,7 @@ export const PopupModal: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const hideDate = localStorage.getItem('dasseoba_cosmetics_hide_popup_day');
+      const hideDate = localStorage.getItem('piuda_cosmetics_hide_popup_day');
       if (hideDate === new Date().toDateString()) {
         closePopup(false);
       }

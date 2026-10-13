@@ -63,7 +63,7 @@ export default function ReservationPage() {
       <div className="bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-3xl p-8 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="space-y-2">
           <span className="inline-flex items-center gap-1 bg-white/20 px-3 py-0.5 rounded-full text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5" /> 다써바 플래그십 뷰티랩
+            <Sparkles className="w-3.5 h-3.5" /> 피우다 플래그십 뷰티랩
           </span>
           <h1 className="text-2xl sm:text-3xl font-black">
             1:1 피부 맞춤 진단 & 뷰티 클래스

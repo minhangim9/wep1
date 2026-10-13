@@ -24,7 +24,7 @@ export default function FindAccountPage() {
       showToast('이름과 휴대폰 번호를 입력해주세요.', 'error');
       return;
     }
-    setFoundId('customer@dasseoba.com');
+    setFoundId('customer@piuda.kr');
     showToast('회원님의 아이디가 조회되었습니다.', 'success');
   };
 
@@ -42,10 +42,18 @@ export default function FindAccountPage() {
     <div className="max-w-md mx-auto px-4 py-16 space-y-8">
       {/* 타이틀 */}
       <div className="text-center space-y-2">
-        <Link href="/" className="inline-block text-3xl font-black text-neutral-900 tracking-tight">
-          다써바<span className="text-rose-500 font-serif">.</span>
+        <Link href="/" className="inline-flex items-center gap-3">
+          <img src="/logo.jpg" alt="아빠사랑 로고" className="h-10 w-auto object-contain rounded-lg shadow-xs" />
+          <div className="text-left flex flex-col">
+            <span className="text-2xl font-black text-neutral-900 tracking-tight leading-tight">
+              피우다<span className="text-rose-500 font-serif">.</span>
+            </span>
+            <span className="text-[10px] text-neutral-400 font-semibold tracking-wider uppercase">
+              Piuda Beauty
+            </span>
+          </div>
         </Link>
-        <h1 className="text-xl font-black text-neutral-900">아이디 / 비밀번호 찾기</h1>
+        <h1 className="text-xl font-black text-neutral-900 pt-2">아이디 / 비밀번호 찾기</h1>
       </div>
 
       {/* 탭 전환 */}
@@ -146,7 +154,7 @@ export default function FindAccountPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="example@dasseoba.com"
+                    placeholder="example@piuda.kr"
                     className="w-full bg-neutral-50 border border-neutral-300 rounded-xl p-3 text-xs"
                   />
                 </div>

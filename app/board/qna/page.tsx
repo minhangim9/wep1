@@ -6,13 +6,45 @@ import { useShop } from '@/context/ShopContext';
 import { ChevronRight, HelpCircle, Lock, Plus, MessageCircle } from 'lucide-react';
 
 export default function QnaBoardPage() {
-  const { boardPosts, addBoardPost, user, showToast } = useShop();
+  const { boardPosts, addBoardPost, user, showToast, openAuthModal } = useShop();
   const qnaPosts = boardPosts.filter((p) => p.type === 'qna');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSecret, setIsSecret] = useState(false);
+
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto py-24 px-4 text-center space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center mx-auto">
+          <Lock className="w-8 h-8 text-neutral-400" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-black text-neutral-900">로그인이 필요한 서비스입니다</h2>
+          <p className="text-xs text-neutral-500 leading-relaxed">
+            1:1 문의 (질문과 답변) 내역 확인 및 작성은<br />
+            로그인하신 후 이용하실 수 있습니다.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-2.5 pt-2">
+          <button
+            type="button"
+            onClick={() => openAuthModal('login')}
+            className="bg-neutral-900 text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors shadow-md cursor-pointer"
+          >
+            로그인하기
+          </button>
+          <Link
+            href="/"
+            className="bg-neutral-100 text-neutral-700 text-xs font-bold px-5 py-3 rounded-xl hover:bg-neutral-200 transition-colors"
+          >
+            홈으로 이동
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +140,7 @@ export default function QnaBoardPage() {
 
             {post.answer && (
               <div className="mt-3 bg-rose-50/50 p-4 rounded-xl border border-rose-100 space-y-1">
-                <p className="font-bold text-rose-600 text-xs">↳ 다써바 공식 답변 ({post.answeredAt?.slice(0, 10)})</p>
+                <p className="font-bold text-rose-600 text-xs">↳ 피우다 공식 답변 ({post.answeredAt?.slice(0, 10)})</p>
                 <p className="text-neutral-800 leading-relaxed">{post.answer}</p>
               </div>
             )}

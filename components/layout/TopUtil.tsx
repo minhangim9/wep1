@@ -6,7 +6,7 @@ import { useShop } from '@/context/ShopContext';
 import { ChevronDown, Sparkles, User, ShieldCheck } from 'lucide-react';
 
 export const TopUtil: React.FC = () => {
-  const { user, logout, recentProducts } = useShop();
+  const { user, logout, recentProducts, openAuthModal } = useShop();
   const [isCsOpen, setIsCsOpen] = useState(false);
 
   return (
@@ -38,15 +38,15 @@ export const TopUtil: React.FC = () => {
         </div>
 
         {/* 우측 유틸 메뉴 */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4" suppressHydrationWarning>
           {user ? (
-            <div className="flex items-center gap-3">
-              <span className="text-neutral-900 font-medium flex items-center gap-1">
-                <span className="bg-neutral-800 text-white text-[10px] px-1.5 py-0.2 rounded font-bold">
+            <div className="flex items-center gap-3" suppressHydrationWarning>
+              <span className="text-neutral-900 font-medium flex items-center gap-1" suppressHydrationWarning>
+                <span className="bg-neutral-800 text-white text-[10px] px-1.5 py-0.2 rounded font-bold" suppressHydrationWarning>
                   {user.tier}
                 </span>
-                <strong>{user.name}</strong>님
-                <span className="text-rose-600 font-semibold ml-1">({user.points.toLocaleString()}P)</span>
+                <strong suppressHydrationWarning>{user.name}</strong>님
+                <span className="text-rose-600 font-semibold ml-1" suppressHydrationWarning>({user.points.toLocaleString()}P)</span>
               </span>
               <button
                 onClick={logout}
@@ -57,16 +57,26 @@ export const TopUtil: React.FC = () => {
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <Link href="/register" className="hover:text-rose-600 font-medium transition-colors">
+              <button
+                onClick={() => openAuthModal('register')}
+                className="hover:text-rose-600 font-medium transition-colors cursor-pointer"
+              >
                 회원가입 (+3,000P)
-              </Link>
+              </button>
               <span className="text-neutral-300">|</span>
-              <Link href="/login" className="hover:text-neutral-900 transition-colors">
+              <button
+                onClick={() => openAuthModal('login')}
+                className="hover:text-neutral-900 transition-colors cursor-pointer"
+              >
                 로그인
-              </Link>
+              </button>
             </div>
           )}
 
+          <span className="text-neutral-300">|</span>
+          <Link href="/mypage" className="font-bold text-neutral-800 hover:text-rose-600 transition-colors">
+            마이페이지
+          </Link>
           <span className="text-neutral-300">|</span>
           <Link href="/mypage/orders" className="hover:text-neutral-900 transition-colors">
             주문/배송조회
@@ -74,7 +84,7 @@ export const TopUtil: React.FC = () => {
 
           <span className="text-neutral-300">|</span>
           <Link href="/mypage/wishlist" className="hover:text-neutral-900 transition-colors">
-            최근본상품 ({recentProducts.length})
+            찜한상품 {user ? `(${recentProducts.length})` : ''}
           </Link>
 
           <span className="text-neutral-300">|</span>
@@ -85,7 +95,7 @@ export const TopUtil: React.FC = () => {
             onMouseEnter={() => setIsCsOpen(true)}
             onMouseLeave={() => setIsCsOpen(false)}
           >
-            <button className="flex items-center gap-1 hover:text-neutral-900 transition-colors py-1">
+            <button className="flex items-center gap-1 hover:text-neutral-900 transition-colors py-1 cursor-pointer">
               고객센터
               <ChevronDown className="w-3 h-3 text-neutral-400" />
             </button>
@@ -133,6 +143,20 @@ export const TopUtil: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* 관리자 페이지: 관리자로 로그인했을 때만 노출 */}
+          {user?.role === 'admin' && (
+            <>
+              <span className="text-neutral-300">|</span>
+              <Link
+                href="/admin"
+                className="font-bold text-neutral-800 hover:text-rose-600 transition-colors flex items-center gap-1 bg-white hover:bg-rose-50 px-2 py-0.5 rounded text-[11px] border border-neutral-300/80 hover:border-rose-300 shadow-2xs"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
+                <span>관리자 페이지</span>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>

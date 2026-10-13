@@ -4,170 +4,335 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useShop } from '@/context/ShopContext';
-import { DEMO_USERS } from '@/lib/mockData';
 import {
   Lock,
   Mail,
-  MessageCircle,
   ShieldCheck,
   Sparkles,
-  ArrowRight,
-  UserCheck,
+  User,
+  Phone,
+  Loader2,
+  Database,
+  AlertCircle,
 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, showToast } = useShop();
+  const { login, signUp, signIn, openSupabaseModal, showToast } = useShop();
+
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 회원가입 필드
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+
     if (!email || !password) {
-      showToast('이메일과 비밀번호를 입력해주세요.', 'error');
+      setFormError('이메일과 비밀번호를 입력해주세요.');
       return;
     }
 
-    // 데모 로그인 처리
-    if (email.includes('admin')) {
-      login('admin');
-      router.push('/admin');
+    setIsLoading(true);
+    const res = await signIn({ email, password });
+    setIsLoading(false);
+
+    if (res.success) {
+      if (res.user?.role === 'admin' || email.includes('admin')) {
+        router.push('/admin');
+      } else {
+        router.push('/mypage');
+      }
     } else {
-      login('customer', { email });
-      router.push('/mypage');
+      setFormError(res.error || '로그인에 실패했습니다.');
     }
   };
 
-  // 카카오 간편로그인 시뮬레이션
-  const handleKakaoLogin = () => {
-    login('customer', {
-      email: 'kakao_user@kakao.com',
-      name: '카카오회원',
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!regName || !regEmail || !regPassword || !regPhone) {
+      setFormError('필수 정보를 모두 입력해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
+    const res = await signUp({
+      name: regName,
+      email: regEmail,
+      password: regPassword,
+      phone: regPhone,
       skinType: '민감성',
+      marketingAgreed: true,
     });
-    router.push('/mypage');
+    setIsLoading(false);
+
+    if (res.success) {
+      router.push('/mypage');
+    } else {
+      setFormError(res.error || '회원가입에 실패했습니다.');
+    }
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-16 space-y-8">
-      {/* 타이틀 헤더 */}
-      <div className="text-center space-y-2">
-        <Link href="/" className="inline-block text-3xl font-black text-neutral-900 tracking-tight">
-          다써바<span className="text-rose-500 font-serif">.</span>
-        </Link>
-        <h1 className="text-xl font-black text-neutral-900">로그인</h1>
-        <p className="text-xs text-neutral-500">
-          다써바 회원이 되시면 <strong>신규가입 3,000P & 1+1 쿠폰</strong>을 드립니다.
-        </p>
-      </div>
-
-      {/* 로그인 폼 */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-6">
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div>
-            <label className="font-bold text-neutral-700 block mb-1">이메일 (아이디)</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@dasseoba.com"
-                className="w-full bg-neutral-50 border border-neutral-300 rounded-xl py-2.5 pl-10 pr-3.5 text-xs focus:bg-white"
-              />
+    <div className="max-w-md mx-auto px-4 py-16 space-y-6">
+      <div className="bg-white rounded-3xl border border-neutral-200 shadow-2xl overflow-hidden">
+        {/* 상단 다크 헤더 */}
+        <div className="bg-neutral-950 text-white p-6 sm:p-7 relative">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <img src="/logo.jpg" alt="피우다 로고" className="h-6 w-auto object-contain rounded" />
+              <span className="text-xs font-black tracking-widest text-neutral-300 uppercase">
+                PIUDA · DADDY'S LOVE
+              </span>
             </div>
+            <h1 className="text-2xl font-black tracking-tight text-white">
+              {activeTab === 'login' ? '로그인' : '회원가입'}
+            </h1>
+            <p className="text-xs text-neutral-300 leading-relaxed">
+              {activeTab === 'login'
+                ? '피우다 회원 전용 적립금과 1+1 특별 혜택을 누려보세요.'
+                : '지금 가입하고 3,000P 적립금과 첫 구매 무료배송 혜택을 받으세요.'}
+            </p>
           </div>
+        </div>
 
-          <div>
-            <label className="font-bold text-neutral-700 block mb-1">비밀번호</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="비밀번호를 입력하세요"
-                className="w-full bg-neutral-50 border border-neutral-300 rounded-xl py-2.5 pl-10 pr-3.5 text-xs focus:bg-white"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-neutral-600">
-            <label className="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="accent-neutral-900 rounded"
-              />
-              로그인 상태 유지
-            </label>
-
-            <Link href="/find-account" className="hover:text-neutral-900 hover:underline">
-              아이디 / 비밀번호 찾기
-            </Link>
-          </div>
-
+        {/* 탭 바 */}
+        <div className="flex border-b border-neutral-200 bg-white text-sm font-bold text-center">
           <button
-            type="submit"
-            className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-black py-3.5 rounded-xl text-sm transition-colors shadow-md mt-2"
+            type="button"
+            onClick={() => {
+              setActiveTab('login');
+              setFormError(null);
+            }}
+            className={`flex-1 py-3.5 transition-all cursor-pointer ${
+              activeTab === 'login'
+                ? 'border-b-2 border-neutral-950 text-neutral-950 font-black'
+                : 'border-b-2 border-transparent text-neutral-400 hover:text-neutral-700'
+            }`}
           >
             로그인
           </button>
-        </form>
-
-        {/* 소셜 간편 로그인 */}
-        <div className="space-y-3 pt-4 border-t border-neutral-100">
           <button
             type="button"
-            onClick={handleKakaoLogin}
-            className="w-full bg-[#FEE500] hover:bg-[#FDD835] text-[#3C1E1E] font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-xs"
+            onClick={() => {
+              setActiveTab('register');
+              setFormError(null);
+            }}
+            className={`flex-1 py-3.5 transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTab === 'register'
+                ? 'border-b-2 border-neutral-950 text-neutral-950 font-black'
+                : 'border-b-2 border-transparent text-neutral-400 hover:text-neutral-700'
+            }`}
           >
-            <MessageCircle className="w-4 h-4 fill-[#3C1E1E]" />
-            카카오 1초 간편 로그인
+            <span>회원가입</span>
+            <span className="bg-amber-100 text-amber-800 text-[10px] font-black px-1.5 py-0.5 rounded-md shadow-xs">
+              +3,000P
+            </span>
           </button>
         </div>
 
-        {/* 원클릭 테스트 데모 계정 버튼들 */}
-        <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200/80 space-y-2 text-xs">
-          <p className="font-bold text-neutral-700 flex items-center gap-1">
-            <UserCheck className="w-3.5 h-3.5 text-rose-500" /> 원클릭 빠른 체험 계정
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                login('customer');
-                router.push('/mypage');
-              }}
-              className="bg-white border border-neutral-300 hover:border-neutral-500 text-neutral-800 py-2 rounded-lg font-semibold text-[11px] transition-colors"
-            >
-              일반 고객 (홍길동)
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                login('admin');
-                router.push('/admin');
-              }}
-              className="bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 py-2 rounded-lg font-bold text-[11px] transition-colors flex items-center justify-center gap-1"
-            >
-              <ShieldCheck className="w-3 h-3" />
-              어드민 관리자
-            </button>
-          </div>
-        </div>
+        {/* 폼 영역 */}
+        <div className="p-6 sm:p-7 space-y-5 text-xs">
+          {/* 에러 안내 바 */}
+          {formError && (
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 space-y-2 animate-in fade-in duration-150">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="flex-1 text-[11px] leading-relaxed font-semibold">
+                  {formError}
+                </div>
+              </div>
+              {(formError.includes('API Key') || formError.includes('members 테이블') || formError.includes('Supabase')) && (
+                <button
+                  type="button"
+                  onClick={openSupabaseModal}
+                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-1.5 px-3 rounded-lg text-[11px] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Database className="w-3.5 h-3.5" />
+                  <span>Supabase API Key 설정 및 진단 열기</span>
+                </button>
+              )}
+            </div>
+          )}
 
-        {/* 회원가입 유도 */}
-        <div className="text-center text-xs text-neutral-500 pt-2">
-          아직 다써바 회원이 아니신가요?{' '}
-          <Link href="/register" className="font-bold text-rose-600 hover:underline ml-1">
-            회원가입 (+3,000P)
-          </Link>
+          {activeTab === 'login' ? (
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div>
+                <label className="font-bold text-neutral-800 block mb-1.5">이메일 주소</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="user@example.com"
+                    className="w-full bg-neutral-50/80 border border-neutral-200 rounded-xl py-3 pl-10 pr-3.5 text-xs focus:bg-white focus:border-rose-400 text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-bold text-neutral-800">비밀번호</label>
+                  <Link
+                    href="/find-account"
+                    className="text-[11px] text-neutral-400 hover:text-neutral-800 hover:underline"
+                  >
+                    아이디 / 비밀번호 찾기
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-neutral-50/80 border border-neutral-200 rounded-xl py-3 pl-10 pr-3.5 text-xs focus:bg-white focus:border-rose-400 text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-400 text-white font-black py-3.5 rounded-xl text-sm transition-all shadow-md active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>로그인 중...</span>
+                  </>
+                ) : (
+                  <span>로그인</span>
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+              <div>
+                <label className="font-bold text-neutral-800 block mb-1">이름 *</label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    placeholder="홍길동"
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-2.5 pl-10 pr-3.5 text-xs focus:bg-white focus:border-rose-400 text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-neutral-800 block mb-1">이메일 (아이디) *</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
+                  <input
+                    type="email"
+                    required
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    placeholder="user@example.com"
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-2.5 pl-10 pr-3.5 text-xs focus:bg-white focus:border-rose-400 text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-neutral-800 block mb-1">비밀번호 *</label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
+                  <input
+                    type="password"
+                    required
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    placeholder="영문, 숫자 포함 8자 이상"
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-2.5 pl-10 pr-3.5 text-xs focus:bg-white focus:border-rose-400 text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-neutral-800 block mb-1">휴대폰 번호 *</label>
+                <div className="relative">
+                  <Phone className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
+                  <input
+                    type="tel"
+                    required
+                    value={regPhone}
+                    onChange={(e) => setRegPhone(e.target.value)}
+                    placeholder="010-1234-5678"
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl py-2.5 pl-10 pr-3.5 text-xs focus:bg-white focus:border-rose-400 text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-neutral-950 hover:bg-rose-600 disabled:bg-neutral-400 text-white font-black py-3.5 rounded-xl text-sm transition-all shadow-md active:scale-[0.99] cursor-pointer mt-2 flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Supabase DB 등록 중...</span>
+                  </>
+                ) : (
+                  <span>가입 완료하고 3,000P 받기</span>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* 빠른 기능 체험 (원클릭 테스트) */}
+          <div className="space-y-2.5 pt-2 border-t border-neutral-100">
+            <p className="text-center font-bold text-[11px] text-neutral-400">
+              빠른 기능 체험 (원클릭 테스트)
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  login('customer');
+                  showToast('일반회원(홍길동)으로 로그인되었습니다.', 'success');
+                  router.push('/mypage');
+                }}
+                className="bg-amber-50/70 border border-amber-300/80 hover:bg-amber-100/80 text-amber-900 font-bold py-2.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+                <span>일반회원 (3,000P)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  login('admin');
+                  showToast('관리자로 로그인되었습니다.', 'success');
+                  router.push('/admin');
+                }}
+                className="bg-indigo-50/70 border border-indigo-200/80 hover:bg-indigo-100/80 text-indigo-900 font-bold py-2.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+                <span>관리자 (어드민권한)</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

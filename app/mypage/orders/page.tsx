@@ -14,24 +14,89 @@ import {
   ExternalLink,
   Receipt,
   CheckCircle2,
+  Lock,
 } from 'lucide-react';
 
 export default function MyOrdersPage() {
-  const { orders, cancelOrder, requestRefund, requestReturn, showToast } = useShop();
+  const { user, orders, cancelOrder, requestRefund, requestReturn, showToast, openAuthModal } = useShop();
 
   const [activeTab, setActiveTab] = useState<'all' | 'cancelled' | 'refunded' | 'returned'>('all');
+  const [periodFilter, setPeriodFilter] = useState<'all' | 'today' | '1week' | '1month' | '3month'>('all');
 
   // 모달 상태
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [modalType, setModalType] = useState<'cancel' | 'refund' | 'return' | 'tracking' | null>(null);
   const [reasonInput, setReasonInput] = useState('');
 
-  // 탭별 필터링
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto py-24 px-4 text-center space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center mx-auto">
+          <Lock className="w-8 h-8 text-neutral-400" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-black text-neutral-900">로그인이 필요한 서비스입니다</h2>
+          <p className="text-xs text-neutral-500 leading-relaxed">
+            주문/배송 조회 및 취소·교환·반품 내역은<br />
+            로그인하신 후 확인하실 수 있습니다.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-2.5 pt-2">
+          <button
+            type="button"
+            onClick={() => openAuthModal('login')}
+            className="bg-neutral-900 text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors shadow-md cursor-pointer"
+          >
+            로그인하기
+          </button>
+          <Link
+            href="/"
+            className="bg-neutral-100 text-neutral-700 text-xs font-bold px-5 py-3 rounded-xl hover:bg-neutral-200 transition-colors"
+          >
+            홈으로 이동
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // 7일 경과 여부 (배송 완료 후 7일 지나면 자동 구매확정 및 반품/환불 버튼 숨김)
+  const isAfter7DaysDelivered = (order: Order) => {
+    if (order.status !== 'delivered') return false;
+    try {
+      const orderDate = new Date(order.createdAt);
+      const diffMs = Date.now() - orderDate.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      return diffDays > 7;
+    } catch {
+      return false;
+    }
+  };
+
+  // 탭 및 기간별 필터링
   const filteredOrders = orders.filter((order) => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'cancelled') return order.status === 'cancelled';
-    if (activeTab === 'refunded') return order.status === 'refund_requested' || order.status === 'refunded';
-    if (activeTab === 'returned') return order.status === 'return_requested' || order.status === 'returned';
+    // 1. 상태 탭
+    if (activeTab === 'cancelled' && order.status !== 'cancelled') return false;
+    if (activeTab === 'refunded' && order.status !== 'refund_requested' && order.status !== 'refunded') return false;
+    if (activeTab === 'returned' && order.status !== 'return_requested' && order.status !== 'returned') return false;
+
+    // 2. 기간 필터
+    if (periodFilter !== 'all') {
+      try {
+        const orderDate = new Date(order.createdAt);
+        const now = new Date();
+        const diffMs = now.getTime() - orderDate.getTime();
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+        if (periodFilter === 'today' && diffDays > 1) return false;
+        if (periodFilter === '1week' && diffDays > 7) return false;
+        if (periodFilter === '1month' && diffDays > 30) return false;
+        if (periodFilter === '3month' && diffDays > 90) return false;
+      } catch {
+        return true;
+      }
+    }
+
     return true;
   });
 
@@ -119,12 +184,42 @@ export default function MyOrdersPage() {
         </button>
       </div>
 
+      {/* 기간 필터 바 (MP-02-01) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-neutral-50 p-3.5 rounded-2xl border border-neutral-200 text-xs">
+        <span className="font-bold text-neutral-700">조회 기간 설정:</span>
+        <div className="flex flex-wrap gap-1.5">
+          {(
+            [
+              { id: 'all', label: '전체' },
+              { id: 'today', label: '오늘' },
+              { id: '1week', label: '1주일' },
+              { id: '1month', label: '1개월' },
+              { id: '3month', label: '3개월' },
+            ] as const
+          ).map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setPeriodFilter(p.id)}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                periodFilter === p.id
+                  ? 'bg-neutral-900 text-white shadow-xs'
+                  : 'bg-white text-neutral-600 border border-neutral-200 hover:border-neutral-300'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* 주문 목록 */}
       <div className="space-y-6">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => {
+            const isConfirmed = isAfter7DaysDelivered(order);
             const canCancel = order.status === 'paid' || order.status === 'pending_payment';
-            const canRefundOrReturn = order.status === 'delivered' || order.status === 'shipped';
+            const canRefundOrReturn = (order.status === 'delivered' || order.status === 'shipped') && !isConfirmed;
 
             return (
               <div
@@ -139,6 +234,11 @@ export default function MyOrdersPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {isConfirmed && (
+                      <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full text-[10px] font-black">
+                        ✓ 구매확정 (7일 경과)
+                      </span>
+                    )}
                     <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                       order.status === 'paid'
                         ? 'bg-rose-100 text-rose-700'
@@ -153,7 +253,7 @@ export default function MyOrdersPage() {
                       {order.status === 'paid' && '결제완료'}
                       {order.status === 'preparing' && '배송준비중'}
                       {order.status === 'shipped' && '배송중'}
-                      {order.status === 'delivered' && '배송완료'}
+                      {order.status === 'delivered' && (isConfirmed ? '배송완료' : '배송완료 (교환/반품 가능)')}
                       {order.status === 'cancelled' && '주문취소완료'}
                       {order.status === 'refund_requested' && '환불신청접수'}
                       {order.status === 'refunded' && '환불완료'}

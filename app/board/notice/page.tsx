@@ -24,7 +24,7 @@ export default function NoticePage() {
       <div className="border-b border-neutral-200 pb-4">
         <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 flex items-center gap-2">
           <FileText className="w-7 h-7 text-rose-500" />
-          다써바 공지사항
+          피우다(Piuda) 공지사항
         </h1>
         <p className="text-xs text-neutral-500 mt-1">
           쇼핑몰 주요 이벤트, 배송 일정, 혜택 안내를 확인하세요.

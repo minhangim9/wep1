@@ -26,7 +26,7 @@ interface MobileDrawerProps {
 }
 
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) => {
-  const { user, logout, wishlist, cart } = useShop();
+  const { user, logout, wishlist, cart, openAuthModal } = useShop();
   const [activeTab, setActiveTab] = useState<'category' | 'community'>('category');
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     'cat-skincare': true,
@@ -50,9 +50,10 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
       {/* 사이드 드로어 본체 */}
       <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-250">
         {/* 드로어 헤더 */}
-        <div className="p-4 bg-neutral-900 text-white flex items-center justify-between">
-          <Link href="/" onClick={onClose} className="font-extrabold text-lg tracking-wider text-white">
-            다써바 <span className="text-rose-400 text-xs font-normal">DASSEOBA</span>
+        <div className="p-3.5 bg-neutral-900 text-white flex items-center justify-between">
+          <Link href="/" onClick={onClose} className="flex items-center gap-2 bg-white px-2 py-1 rounded-lg">
+            <img src="/logo.jpg" alt="아빠사랑 로고" className="h-7 w-auto object-contain" />
+            <span className="font-black text-xs text-neutral-900 tracking-tight">피우다 Piuda</span>
           </Link>
           <button onClick={onClose} className="p-1 hover:bg-neutral-800 rounded-full text-neutral-300">
             <X className="w-5 h-5" />
@@ -60,15 +61,15 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
         </div>
 
         {/* 유저 상태 카드 */}
-        <div className="p-4 bg-neutral-50 border-b border-neutral-200">
+        <div className="p-4 bg-neutral-50 border-b border-neutral-200" suppressHydrationWarning>
           {user ? (
-            <div>
+            <div suppressHydrationWarning>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                  <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold" suppressHydrationWarning>
                     {user.tier}
                   </span>
-                  <span className="font-bold text-neutral-900">{user.name}님</span>
+                  <span className="font-bold text-neutral-900" suppressHydrationWarning>{user.name}님</span>
                 </div>
                 <button
                   onClick={() => {
@@ -101,20 +102,24 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
                 로그인하고 <strong>신규가입 3,000P 혜택</strong>을 받으세요!
               </p>
               <div className="grid grid-cols-2 gap-2">
-                <Link
-                  href="/login"
-                  onClick={onClose}
-                  className="bg-neutral-900 text-white text-xs font-semibold py-2 rounded text-center hover:bg-neutral-800"
+                <button
+                  onClick={() => {
+                    onClose();
+                    openAuthModal('login');
+                  }}
+                  className="bg-neutral-900 text-white text-xs font-semibold py-2 rounded text-center hover:bg-neutral-800 cursor-pointer"
                 >
                   로그인
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={onClose}
-                  className="bg-rose-500 text-white text-xs font-semibold py-2 rounded text-center hover:bg-rose-600"
+                </button>
+                <button
+                  onClick={() => {
+                    onClose();
+                    openAuthModal('register');
+                  }}
+                  className="bg-rose-500 text-white text-xs font-semibold py-2 rounded text-center hover:bg-rose-600 cursor-pointer"
                 >
                   회원가입 (+3,000P)
-                </Link>
+                </button>
               </div>
             </div>
           )}
@@ -252,6 +257,27 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
                 <Headphones className="w-4 h-4 text-blue-500" /> 고객센터 FAQ
               </Link>
               <Link
+                href="/mypage"
+                onClick={onClose}
+                className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-100 text-neutral-900 font-bold border-t border-neutral-100 pt-3"
+              >
+                <User className="w-4 h-4 text-rose-500" /> 마이페이지 홈
+              </Link>
+              <Link
+                href="/mypage/subscriptions"
+                onClick={onClose}
+                className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-100 text-neutral-700 font-medium"
+              >
+                <Sparkles className="w-4 h-4 text-emerald-500" /> 화장품 정기배송(구독) 관리
+              </Link>
+              <Link
+                href="/mypage/reviews"
+                onClick={onClose}
+                className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-100 text-neutral-700 font-medium"
+              >
+                <Sparkles className="w-4 h-4 text-amber-500" /> 나의 리뷰 관리 (+1,500P)
+              </Link>
+              <Link
                 href="/mypage/inquiries"
                 onClick={onClose}
                 className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-neutral-100 text-neutral-700 font-medium"
@@ -262,9 +288,9 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
                 <Link
                   href="/admin"
                   onClick={onClose}
-                  className="flex items-center gap-2.5 p-2 rounded-lg bg-rose-50 text-rose-700 font-bold border border-rose-200 mt-4"
+                  className="flex items-center gap-2.5 p-2 rounded-lg bg-neutral-100 hover:bg-rose-50 text-neutral-800 hover:text-rose-700 font-bold border border-neutral-200 hover:border-rose-200 mt-3 transition-colors"
                 >
-                  <ShieldCheck className="w-4 h-4 text-rose-600" /> 관리자 어드민 페이지
+                  <ShieldCheck className="w-4 h-4 text-rose-600" /> 관리자 페이지 바로가기
                 </Link>
               )}
             </div>
@@ -273,7 +299,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
 
         {/* 드로어 푸터 */}
         <div className="p-4 bg-neutral-100 border-t border-neutral-200 text-xs text-neutral-600">
-          <p className="font-bold text-neutral-900">다써바 고객만족센터</p>
+          <p className="font-bold text-neutral-900">아빠사랑 피우다 고객만족센터</p>
           <p className="text-rose-600 font-bold text-base mt-0.5">1588-0000</p>
           <p className="text-[11px] text-neutral-500">평일 09:30 ~ 18:00 (점심 12:30 ~ 13:30)</p>
           <a

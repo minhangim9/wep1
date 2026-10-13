@@ -20,7 +20,7 @@ export const QuickSearch: React.FC<QuickSearchProps> = ({ isOpen, onClose }) => 
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
-      const saved = localStorage.getItem('dasseoba_recent_searches');
+      const saved = localStorage.getItem('piuda_recent_searches');
       if (saved) setRecentSearches(JSON.parse(saved));
     }
   }, [isOpen]);
@@ -29,14 +29,14 @@ export const QuickSearch: React.FC<QuickSearchProps> = ({ isOpen, onClose }) => 
     if (!term.trim()) return;
     const updated = [term, ...recentSearches.filter((k) => k !== term)].slice(0, 6);
     setRecentSearches(updated);
-    localStorage.setItem('dasseoba_recent_searches', JSON.stringify(updated));
+    localStorage.setItem('piuda_recent_searches', JSON.stringify(updated));
     onClose();
     router.push(`/category/all?search=${encodeURIComponent(term.trim())}`);
   };
 
   const clearRecent = () => {
     setRecentSearches([]);
-    localStorage.removeItem('dasseoba_recent_searches');
+    localStorage.removeItem('piuda_recent_searches');
   };
 
   if (!isOpen) return null;

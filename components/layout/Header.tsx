@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
-  const { cart, user } = useShop();
+  const { cart, user, openAuthModal } = useShop();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -44,13 +44,20 @@ export const Header: React.FC = () => {
                 <Menu className="w-6 h-6" />
               </button>
 
-              <Link href="/" className="flex flex-col">
-                <span className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900 flex items-center gap-1.5">
-                  다써바<span className="text-rose-500 font-serif text-xl sm:text-2xl">.</span>
-                </span>
-                <span className="text-[10px] text-neutral-400 font-semibold tracking-widest -mt-1 uppercase">
-                  DASSEOBA BEAUTY
-                </span>
+              <Link href="/" className="flex items-center gap-3 group">
+                <img
+                  src="/logo.jpg"
+                  alt="아빠사랑 로고"
+                  className="h-9 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"
+                />
+                <div className="flex flex-col">
+                  <span className="text-base sm:text-lg font-black tracking-tight text-neutral-900 flex items-center gap-1 leading-none">
+                    피우다<span className="text-rose-500 font-serif">.</span>
+                  </span>
+                  <span className="text-[10px] text-rose-500 font-extrabold tracking-wider uppercase mt-0.5">
+                    Piuda Beauty
+                  </span>
+                </div>
               </Link>
             </div>
 
@@ -129,14 +136,24 @@ export const Header: React.FC = () => {
                 <Search className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
 
-              {/* 마이페이지 링크 */}
-              <Link
-                href="/mypage"
-                className="p-2 text-neutral-700 hover:text-rose-600 hover:bg-neutral-100 rounded-full transition-colors relative"
-                aria-label="마이페이지"
-              >
-                <User className="w-5 h-5 sm:w-6 sm:h-6" />
-              </Link>
+              {/* 마이페이지 링크 or 로그인 팝업 트리거 */}
+              {user ? (
+                <Link
+                  href="/mypage"
+                  className="p-2 text-neutral-700 hover:text-rose-600 hover:bg-neutral-100 rounded-full transition-colors relative"
+                  aria-label="마이페이지"
+                >
+                  <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                </Link>
+              ) : (
+                <button
+                  onClick={() => openAuthModal('login')}
+                  className="p-2 text-neutral-700 hover:text-rose-600 hover:bg-neutral-100 rounded-full transition-colors relative cursor-pointer"
+                  aria-label="로그인"
+                >
+                  <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              )}
 
               {/* 장바구니 링크 & 실시간 뱃지 */}
               <Link
@@ -145,7 +162,7 @@ export const Header: React.FC = () => {
                 aria-label="장바구니"
               >
                 <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
-                {totalCartCount > 0 && (
+                {user && totalCartCount > 0 && (
                   <span className="absolute top-1 right-1 bg-rose-600 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-xs animate-scale-in">
                     {totalCartCount > 99 ? '99+' : totalCartCount}
                   </span>

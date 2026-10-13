@@ -10,11 +10,17 @@ export interface UserProfile {
   role: UserRole;
   tier: MembershipTier;
   skinType?: SkinType;
+  skinConcerns?: string[];
   points: number;
   marketingAgreed: boolean;
   address?: string;
   detailAddress?: string;
   zipcode?: string;
+  lastLoginAt?: string;
+  adminRole?: 'super_admin' | 'sub_admin';
+  adminStatus?: 'active' | 'suspended';
+  permissions?: string[];
+  isGuest?: boolean;
   createdAt: string;
 }
 
@@ -116,12 +122,20 @@ export interface Order {
   shippingDetailAddress: string;
   shippingMemo?: string;
   paymentMethod: 'card' | 'kakaopay' | 'naverpay' | 'tosspay' | 'transfer' | 'vbank';
+  paymentKey?: string;
   paymentDetails?: {
     cardName?: string;
+    cardNumber?: string;
+    approveNo?: string;
+    installmentMonths?: number;
+    easyPayProvider?: string;
     vbankName?: string;
     vbankAccount?: string;
     vbankDueDate?: string;
     receiptUrl?: string;
+    approvedAt?: string;
+    requestedAt?: string;
+    rawResponse?: any;
   };
   tracking?: {
     carrier: string;
@@ -138,6 +152,29 @@ export interface Order {
   createdAt: string;
   cancelReason?: string;
   refundReason?: string;
+  cancelAmount?: number;
+  cancelledAt?: string;
+}
+
+export interface DeliveryRecord {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  carrier: string;
+  carrierCode?: string;
+  trackingNumber: string;
+  status: 'preparing' | 'shipped' | 'in_transit' | 'delivered' | 'returned';
+  receiverName: string;
+  receiverPhone: string;
+  shippingZipcode?: string;
+  shippingAddress: string;
+  shippingDetailAddress?: string;
+  shippingMemo?: string;
+  itemsSummary?: string;
+  shippedAt?: string;
+  deliveredAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Review {
@@ -149,10 +186,41 @@ export interface Review {
   userSkinType?: SkinType;
   rating: number; // 1 ~ 5
   content: string;
+  texture?: '촉촉해요' | '보통이에요' | '매트해요'; // 화장품 특화 발림성 평가
   photoUrls?: string[];
   isBest?: boolean;
   helpfulCount: number;
   createdAt: string;
+}
+
+export interface ShippingAddress {
+  id: string;
+  userId: string;
+  recipientName: string;
+  phone: string;
+  zipcode: string;
+  address: string;
+  detailAddress?: string;
+  isDefault: boolean;
+  deliveryMemo?: string;
+  createdAt?: string;
+}
+
+export interface SubscriptionItem {
+  id: string;
+  userId: string;
+  productId: string;
+  productName: string;
+  productImage: string;
+  intervalMonths: number; // 1개월, 2개월, 3개월 주기
+  nextDeliveryDate: string; // YYYY-MM-DD
+  shippingAddress: string;
+  shippingRecipient: string;
+  shippingPhone: string;
+  status: 'active' | 'paused' | 'cancelled'; // 활성, 일시정지, 해지
+  discountRate: number; // 정기구독 혜택 할인율 (예: 15%)
+  pricePerDelivery: number; // 회차당 결제금액
+  createdAt?: string;
 }
 
 export interface BoardPost {
@@ -206,6 +274,16 @@ export interface PointLog {
   createdAt: string;
 }
 
+export interface TaxInvoiceItem {
+  name: string; // 품목
+  spec?: string; // 규격
+  quantity: number; // 수량
+  unitPrice: number; // 단가
+  supplyAmount: number; // 공급가액
+  vatAmount: number; // 세액
+  remarks?: string; // 비고
+}
+
 export interface TaxInvoice {
   id: string;
   orderId: string;
@@ -217,11 +295,19 @@ export interface TaxInvoice {
   companyName?: string;
   representativeName?: string;
   email?: string;
+  address?: string;
+  businessType?: string;
+  businessCategory?: string;
+  supplyAmount?: number;
+  vatAmount?: number;
   amount: number;
   status: 'requested' | 'issued' | 'rejected';
+  items?: TaxInvoiceItem[];
   issuedAt?: string;
   pdfUrl?: string;
+  remarks?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface RawMaterial {
@@ -254,3 +340,70 @@ export interface ChatMessage {
   quickReplies?: string[];
   productRecommendations?: Product[];
 }
+
+export interface AdminLoginLog {
+  id: string;
+  adminId: string;
+  adminEmail: string;
+  adminName: string;
+  ipAddress?: string;
+  userAgent?: string;
+  status: 'success' | 'failed';
+  failureReason?: string;
+  loginAt: string;
+}
+
+export type AdminRoleType = 'super_admin' | 'sub_admin';
+export type AdminAccountStatus = 'active' | 'suspended';
+
+export type AdminMenuKey =
+  | 'dashboard'
+  | 'members'
+  | 'products'
+  | 'orders'
+  | 'delivery'
+  | 'inventory'
+  | 'tax'
+  | 'popups'
+  | 'admins';
+
+export interface AdminAccount {
+  id: string;
+  email: string;
+  password?: string;
+  passwordHash?: string;
+  passwordSalt?: string;
+  name: string;
+  phone: string;
+  role: AdminRoleType;
+  status: AdminAccountStatus;
+  permissions: AdminMenuKey[];
+  memo?: string;
+  mfaEnabled?: boolean;
+  lastLoginAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AdminMenuMeta {
+  key: AdminMenuKey;
+  label: string;
+  href: string;
+  description: string;
+  requiredRole?: AdminRoleType;
+}
+
+export interface GuestMember {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  orderPassword?: string;
+  address?: string;
+  detailAddress?: string;
+  zipcode?: string;
+  marketingAgreed?: boolean;
+  createdAt: string;
+}
+
+

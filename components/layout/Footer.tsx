@@ -2,9 +2,11 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useShop } from '@/context/ShopContext';
 import { ShieldCheck, PhoneCall, CreditCard, Clock, MessageCircle } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const { user } = useShop();
   return (
     <footer className="bg-neutral-900 text-neutral-400 text-xs pt-12 pb-24 lg:pb-12 border-t border-neutral-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -42,7 +44,7 @@ export const Footer: React.FC = () => {
             <div className="bg-neutral-800/80 p-3 rounded-lg border border-neutral-700/60 space-y-1 text-[11px]">
               <p className="text-white font-semibold">국민은행 : 123402-04-567890</p>
               <p className="text-neutral-300">기업은행 : 987-654321-01-012</p>
-              <p className="text-rose-400 font-medium pt-1">예금주 : (주)다써바코스메틱</p>
+              <p className="text-rose-400 font-medium pt-1">예금주 : (주)아빠사랑 피우다</p>
             </div>
             <p className="text-[11px] text-neutral-500">
               * 주문자명과 입금자명이 다를 경우 고객센터로 연락 부탁드립니다.
@@ -128,15 +130,21 @@ export const Footer: React.FC = () => {
               <Link href="/cs" className="hover:text-white font-bold text-white transition-colors">개인정보처리방침</Link>
               <span>|</span>
               <Link href="/cs" className="hover:text-white transition-colors">이용안내</Link>
+              {user?.role === 'admin' && (
+                <>
+                  <span>|</span>
+                  <Link href="/admin" className="hover:text-rose-400 font-bold text-neutral-300 transition-colors">관리자 페이지</Link>
+                </>
+              )}
             </div>
             <p className="pt-1">
-              상호명: (주)다써바코스메틱 | 대표자: 홍길동 | 사업자등록번호: 123-45-67890 | 통신판매업신고: 제2026-서울강남-01234호
+              상호명: (주)아빠사랑 피우다 | 대표자: 홍길동 | 사업자등록번호: 123-45-67890 | 통신판매업신고: 제2026-서울강남-01234호
             </p>
             <p>
-              주소: 서울특별시 강남구 테헤란로 123 다써바타워 7층 | 개인정보관리책임자: 김민지 (privacy@dasseoba.com)
+              주소: 서울특별시 강남구 테헤란로 123 아빠사랑타워 7층 | 개인정보관리책임자: 김민지 (privacy@piuda.com)
             </p>
             <p className="text-neutral-600 pt-1">
-              Copyright © DASSEOBA Cosmetics All Rights Reserved. Powered by Supabase & Next.js
+              Copyright © Daddy's Love & Piuda Cosmetics All Rights Reserved. Powered by Supabase & Next.js
             </p>
           </div>
         </div>

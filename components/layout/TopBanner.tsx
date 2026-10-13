@@ -9,7 +9,7 @@ export const TopBanner: React.FC = () => {
   const [dontShowToday, setDontShowToday] = useState(false);
 
   useEffect(() => {
-    const hiddenDate = localStorage.getItem('dasseoba_hide_top_banner');
+    const hiddenDate = localStorage.getItem('piuda_hide_top_banner');
     if (hiddenDate === new Date().toDateString()) {
       setIsVisible(false);
     }
@@ -17,7 +17,7 @@ export const TopBanner: React.FC = () => {
 
   const handleClose = () => {
     if (dontShowToday) {
-      localStorage.setItem('dasseoba_hide_top_banner', new Date().toDateString());
+      localStorage.setItem('piuda_hide_top_banner', new Date().toDateString());
     }
     setIsVisible(false);
   };
@@ -31,7 +31,7 @@ export const TopBanner: React.FC = () => {
           <Sparkles className="w-4 h-4 text-yellow-200 animate-pulse" />
           <Link href="/category/one-plus-one" className="hover:underline flex items-center gap-1.5">
             <span className="bg-white/20 px-2 py-0.5 rounded-full text-[11px] font-bold">1+1 EVENT</span>
-            <span>신규회원 첫 구매 시 <strong>센텔라 시카 앰플 1+1</strong> & <strong>3,000P 즉시 적립</strong>!</span>
+            <span>신규회원 첫 구매 시 <strong>피우다(Piuda) 듀얼 프리즈 세럼 1+1</strong> & <strong>3,000P 즉시 적립</strong>!</span>
           </Link>
         </div>
 
